@@ -34,9 +34,11 @@ def cost_function(x):
     """ Cost of x = f(x)."""
     return f(x)
 
-def random_neighbour(x, k):
+def random_neighbour(x):
     """Move a little bit x, from the left or the right."""
-    z = np.random.choice(range(1, k-2))
+    global k
+    z = np.random.choice(range(1, int(k-1)),1)
+    z = z[0]
     temp = []
     for i in range(0, len(x)):
         if i == z:
@@ -48,13 +50,13 @@ def random_neighbour(x, k):
     return temp
 
 def acceptance_probability(cost, new_cost, temperature):
+    p=0
     if new_cost < cost:
-        # print("    - Acceptance probabilty = 1 as new_cost = {} < cost = {}...".format(new_cost, cost))
-        return 1
+        p=1
     else:
-        p = np.exp(- (new_cost - cost) / temperature)
-        # print("    - Acceptance probabilty = {:.3g}...".format(p))
-        return p
+        # p = np.exp(- (new_cost - cost) / temperature)
+        p= temperature
+    return p
 
 def temperature(fraction):
     """ Example of temperature dicreasing as the process goes on."""
@@ -78,16 +80,16 @@ def annealing(maxsteps=1000):
     for step in range(maxsteps):
         fraction = step / float(maxsteps)
         T = temperature(fraction)
-        new_state = random_neighbour(state, fraction)
+        new_state = random_neighbour(state)
         new_cost = cost_function(new_state)
-        print("Step #{:>2}/{:>2} : T = {:>4.3g}, state = {:>4.3g}, cost = {:>4.3g}, new_state = {:>4.3g}, new_cost = {:>4.3g} ...".format(step, maxsteps, T, state, cost, new_state, new_cost))
+        print('Step '+str(step)+' : T = '+str(round(T,2))+' state = '+str(state)+' cost = '+str(cost)+' new_state = '+str(new_state)+' new_cost = '+str(new_cost))
         if acceptance_probability(cost, new_cost, T) > rn.random():
             state, cost = new_state, new_cost
             states.append(state)
             costs.append(cost)
     return state, cost_function(state), states, costs
 
-k = 3
-max = 20
+k = 4
+max = 1000
 distance = [[max,1,max,max],[1,max,1,max],[max,1,max,1],[max,max,1,max]]
 annealing( maxsteps=30)
